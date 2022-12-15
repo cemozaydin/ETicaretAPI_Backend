@@ -12,7 +12,9 @@ namespace ETicaretAPI.Domain.Entities
         public string ProductName { get; set; }
         public int Stock { get; set; }
         public long Price { get; set; }
-        public ICollection<Order> Orders { get; set; } 
+
+
+        public ICollection<Order>? Orders { get; set; } 
         
         //Her product'ın birden fazla Order'ı oluyor. Aynı işlemmi Order üzerinde de yapınca N-N bir ilişki kurmuş oluyoruz.
     }

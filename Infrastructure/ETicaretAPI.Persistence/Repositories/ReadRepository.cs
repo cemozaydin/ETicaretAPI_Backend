@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,20 +24,47 @@ namespace ETicaretAPI.Persistence.Repositories
 
         public DbSet<TEntity> Table => _context.Set<TEntity>();
 
-        public IQueryable<TEntity> FindAll(Expression<Func<TEntity, bool>> method = null)
-        => method == null ? Table : Table.Where(method);
-
-        public IQueryable<TEntity> GetAll()
+        public IQueryable<TEntity> FindAll(Expression<Func<TEntity, bool>> method = null, bool tracking = true)
         {
-            return Table;
+            var query = method == null ? Table : Table.Where(method);
+            if (!tracking)
+            {
+                query = query.AsNoTracking();
+            }
+            return query;
+        }
+        public IQueryable<TEntity> GetAll(bool tracking = true)
+        {
+            var query = Table.AsQueryable();
+            if (!tracking)
+            {
+               query = query.AsNoTracking();
+            }
+            return query;
         }
 
-        public async Task<TEntity> GetByIdAsync(int id)
+        public async Task<TEntity> GetByIdAsync(int id, bool tracking = true)
         {
-            return await Table.FirstOrDefaultAsync(e=>e.Id== id);             
+            //return await Table.FirstOrDefaultAsync(e => e.Id == id);
+            var query = Table.AsQueryable();
+            if (!tracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query.FirstOrDefaultAsync(x=>x.Id==id); // marker pattern üzerinden erişiyoruz
         }
 
-        public async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> method)
-        => await Table.FirstOrDefaultAsync(method);
+
+        public async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> method, bool tracking = true)
+        {
+            var query = Table.AsQueryable();
+            if (!tracking)
+            {
+                query = query.AsNoTracking();
+            }
+            return await query.FirstOrDefaultAsync(method);
+
+        }
     }
 }

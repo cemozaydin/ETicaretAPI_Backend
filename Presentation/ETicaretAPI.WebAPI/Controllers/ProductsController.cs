@@ -25,11 +25,25 @@ namespace ETicaretAPI.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _productReadRepository.GetByIdAsync(id,false);
+            return Ok(result);
+        }
+
         [HttpPost("add")]
         public IActionResult Add(Product product)
         {
             _productWriteRepository.AddAsync(product);
             return Ok();
+        }
+
+        [HttpPost("addrange")]
+        public async Task<IActionResult> AddRange(List<Product> products)
+        {
+            var result = await _productWriteRepository.AddRangeAsync(products);
+            return Ok(result);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using ETicaretAPI.Application.Repositories.ProductRepository;
+using ETicaretAPI.Application.ViewModels.Products;
 using ETicaretAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace ETicaretAPI.WebAPI.Controllers
 {
@@ -18,14 +20,14 @@ namespace ETicaretAPI.WebAPI.Controllers
             _productWriteRepository = productWriteRepository;   
         }
 
-        [HttpGet("getall")]
+        [HttpGet()]
         public IActionResult GetAll()
         {
-            var result = _productReadRepository.GetAll();
+            var result = _productReadRepository.GetAll(false);
             return Ok(result);
         }
 
-        [HttpGet("getbyid")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _productReadRepository.GetByIdAsync(id,false);
@@ -33,10 +35,16 @@ namespace ETicaretAPI.WebAPI.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult Add(Product product)
+        public async Task<IActionResult> Add(VM_Create_Product product)
         {
-            _productWriteRepository.AddAsync(product);
-            return Ok();
+
+           await _productWriteRepository.AddAsync(new()
+           {
+               ProductName = product.ProductName,
+               Price= product.Price,
+               Stock= product.Stock
+           });
+            return StatusCode((int)HttpStatusCode.Created);
         }
 
         [HttpPost("addrange")]
@@ -44,6 +52,26 @@ namespace ETicaretAPI.WebAPI.Controllers
         {
             var result = await _productWriteRepository.AddRangeAsync(products);
             return Ok(result);
+        }
+
+        [HttpPut()]
+        public async Task<IActionResult> Update(VM_Update_Product product)
+        {
+            Product updateProduct = await _productReadRepository.GetByIdAsync(product.Id);
+            updateProduct.ProductName = product.ProductName ?? updateProduct.ProductName;
+            updateProduct.Price = product.Price == 0 ? updateProduct.Price: product.Price;
+            updateProduct.Stock = product.Stock == 0 ? updateProduct.Stock : product.Stock;
+
+            _productWriteRepository.Update(updateProduct);
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _productWriteRepository.RemoveAsync(id);
+            return Ok();
         }
     }
 }

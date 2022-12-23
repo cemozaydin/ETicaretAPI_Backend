@@ -13,7 +13,7 @@ namespace ETicaretAPI.Application.Repositories
         Task<bool> AddAsync(TEntity entity);
         Task<bool> AddRangeAsync(List<TEntity> entities);
         bool Remove(TEntity entity);
-        Task<bool> Remove(int id);
+        Task<bool> RemoveAsync(int id);
         bool RemoveRange(List<TEntity> entities);
         bool Update(TEntity entity);
         

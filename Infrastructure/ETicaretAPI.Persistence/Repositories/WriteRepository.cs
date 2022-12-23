@@ -47,7 +47,7 @@ namespace ETicaretAPI.Persistence.Repositories
             return true;
         }
 
-        public async Task<bool> Remove(int id)
+        public async Task<bool> RemoveAsync(int id)
         {
             TEntity model = await Table.FirstOrDefaultAsync(e => e.Id == id);
             return Remove(model);

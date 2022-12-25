@@ -34,7 +34,7 @@ namespace ETicaretAPI.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("add")]
+        [HttpPost()]
         public async Task<IActionResult> Add(VM_Create_Product product)
         {
 
@@ -42,17 +42,19 @@ namespace ETicaretAPI.WebAPI.Controllers
            {
                ProductName = product.ProductName,
                Price= product.Price,
-               Stock= product.Stock
+               Stock= product.Stock,
+               CreatedDate = DateTime.UtcNow
+               
            });
             return StatusCode((int)HttpStatusCode.Created);
         }
 
-        [HttpPost("addrange")]
-        public async Task<IActionResult> AddRange(List<Product> products)
-        {
-            var result = await _productWriteRepository.AddRangeAsync(products);
-            return Ok(result);
-        }
+        //[HttpPost("addrange")]
+        //public async Task<IActionResult> AddRange(List<Product> products)
+        //{
+        //    var result = await _productWriteRepository.AddRangeAsync(products);
+        //    return Ok(result);
+        //}
 
         [HttpPut()]
         public async Task<IActionResult> Update(VM_Update_Product product)

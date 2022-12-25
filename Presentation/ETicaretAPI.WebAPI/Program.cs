@@ -1,5 +1,11 @@
 
+using ETicaretAPI.Application.CCS.Validators.Products;
+using ETicaretAPI.Application.ViewModels.Products;
+using ETicaretAPI.Domain.Entities;
+using ETicaretAPI.Infrastructure.Filters;
 using ETicaretAPI.Persistence;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +17,15 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy=>
             .AllowAnyMethod()
 ));
 
-builder.Services.AddControllers();
+
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+
+builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
+    .ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter=true);
+
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

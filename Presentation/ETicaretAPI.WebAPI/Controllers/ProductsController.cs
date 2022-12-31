@@ -4,6 +4,7 @@ using ETicaretAPI.Application.ViewModels.Products;
 using ETicaretAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Net;
 
 namespace ETicaretAPI.WebAPI.Controllers
@@ -22,20 +23,32 @@ namespace ETicaretAPI.WebAPI.Controllers
         }
 
         [HttpGet()]
-        public IActionResult GetAll([FromQuery] Pagination pagination)
+        public IActionResult GetAll([FromQuery] Pagination? pagination)
         {
+           
             var totalCount = _productReadRepository.GetAll(false).Count();
-            
-            var result = _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Skip(pagination.PageIndex * pagination.PageSize).Take(pagination.PageSize).Select(p => new
-            {
-                p.Id,
-                p.ProductName,
-                p.Stock,
-                p.Price,
-                p.CreatedDate
-            });
 
-            Console.WriteLine($"{DateTime.Now}\nToplam Veri Sayısı:{totalCount}\n");
+            var result = pagination.PageSize == 0 && pagination.PageIndex == 0
+                ? _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Select(p => new
+                {
+                    p.Id,
+                    p.ProductName,
+                    p.Stock,
+                    p.Price,
+                    p.CreatedDate,
+                    p.UpdatedDate
+                })
+                : _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Skip(pagination.PageIndex * pagination.PageSize).Take(pagination.PageSize).Select(p => new
+                {
+                    p.Id,
+                    p.ProductName,
+                    p.Stock,
+                    p.Price,
+                    p.CreatedDate,
+                    p.UpdatedDate
+                });
+
+           Console.WriteLine($"{DateTime.Now}\nToplam Veri Sayısı:{totalCount}\n");
            return Ok(new { totalCount, result });
            
         }

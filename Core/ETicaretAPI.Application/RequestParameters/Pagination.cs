@@ -8,8 +8,8 @@ namespace ETicaretAPI.Application.RequestParameters
 {
     public record Pagination
     {
-        public int PageIndex { get; set; } 
-        public int PageSize { get; set; } 
+        public int Page { get; set; } 
+        public int Size { get; set; } 
 
     }
 }

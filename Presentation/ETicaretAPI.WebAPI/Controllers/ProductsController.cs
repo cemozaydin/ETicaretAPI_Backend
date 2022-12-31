@@ -24,11 +24,10 @@ namespace ETicaretAPI.WebAPI.Controllers
 
         [HttpGet()]
         public IActionResult GetAll([FromQuery] Pagination? pagination)
-        {
-           
+        {           
             var totalCount = _productReadRepository.GetAll(false).Count();
 
-            var result = pagination.PageSize == 0 && pagination.PageIndex == 0
+            var result = pagination.Page == 0 && pagination.Size == 0
                 ? _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Select(p => new
                 {
                     p.Id,
@@ -37,8 +36,8 @@ namespace ETicaretAPI.WebAPI.Controllers
                     p.Price,
                     p.CreatedDate,
                     p.UpdatedDate
-                })
-                : _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Skip(pagination.PageIndex * pagination.PageSize).Take(pagination.PageSize).Select(p => new
+                }).ToList()
+                : _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(p => new
                 {
                     p.Id,
                     p.ProductName,
@@ -46,7 +45,7 @@ namespace ETicaretAPI.WebAPI.Controllers
                     p.Price,
                     p.CreatedDate,
                     p.UpdatedDate
-                });
+                }).ToList();
 
            Console.WriteLine($"{DateTime.Now}\nToplam Veri Sayısı:{totalCount}\n");
            return Ok(new { totalCount, result });

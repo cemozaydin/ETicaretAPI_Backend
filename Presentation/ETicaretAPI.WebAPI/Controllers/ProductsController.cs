@@ -2,7 +2,6 @@
 using ETicaretAPI.Application.RequestParameters;
 using ETicaretAPI.Application.ViewModels.Products;
 using ETicaretAPI.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
@@ -25,30 +24,32 @@ namespace ETicaretAPI.WebAPI.Controllers
         [HttpGet()]
         public IActionResult GetAll([FromQuery] Pagination? pagination)
         {           
-            var totalCount = _productReadRepository.GetAll(false).Count();
+            int totalCount = _productReadRepository.GetAll(false).Count();
 
-            var result = pagination.Page == 0 && pagination.Size == 0
-                ? _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Select(p => new
+            //var result = pagination.Page == 0 && pagination.Size == 0
+            //    ? _productReadRepository.GetAll(false).OrderBy(i=>i.Id).Select(p => new
+            //    {
+            //        p.Id,
+            //        p.Name,
+            //        p.Stock,
+            //        p.Price,
+            //        p.CreatedDate,
+            //        p.UpdatedDate
+            //    }):
+            
+           var products = _productReadRepository.GetAll(false).OrderBy(i => i.Id).Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(p => new
                 {
                     p.Id,
-                    p.ProductName,
+                    p.Name,
                     p.Stock,
                     p.Price,
                     p.CreatedDate,
                     p.UpdatedDate
-                }).ToList()
-                : _productReadRepository.GetAll(false).OrderByDescending(o => o.Id).Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(p => new
-                {
-                    p.Id,
-                    p.ProductName,
-                    p.Stock,
-                    p.Price,
-                    p.CreatedDate,
-                    p.UpdatedDate
-                }).ToList();
+                });
 
            Console.WriteLine($"{DateTime.Now}\nToplam Veri Sayısı:{totalCount}\n");
-           return Ok(new { totalCount, result });
+
+            return Ok(new { totalCount, products});
            
         }
 
@@ -65,7 +66,7 @@ namespace ETicaretAPI.WebAPI.Controllers
            
            await _productWriteRepository.AddAsync(new()
            {
-               ProductName = product.ProductName,
+               Name = product.ProductName,
                Price= product.Price,
                Stock= product.Stock,
                CreatedDate = DateTime.UtcNow
@@ -85,7 +86,7 @@ namespace ETicaretAPI.WebAPI.Controllers
         public async Task<IActionResult> Update(VM_Update_Product product)
         {
             Product updateProduct = await _productReadRepository.GetByIdAsync(product.Id);
-            updateProduct.ProductName = product.ProductName ?? updateProduct.ProductName;
+            updateProduct.Name = product.ProductName ?? updateProduct.Name;
             updateProduct.Price = product.Price == 0 ? updateProduct.Price: product.Price;
             updateProduct.Stock = product.Stock == 0 ? updateProduct.Stock : product.Stock;
 
